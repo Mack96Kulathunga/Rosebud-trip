@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rosebud Getaway — Vote Your Picks 🌊</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #f5efe6;
+    --ocean: #1a6b7c;
+    --ocean-light: #2a8fa3;
+    --foam: #e8f4f7;
+    --coral: #e07b5a;
+    --dusk: #3d2b45;
+    --mist: #a8c8d0;
+    --text: #1e2a2e;
+    --checked-bg: #d4eeef;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--sand);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 40% at 50% 0%, #c5e8ef55 0%, transparent 70%),
+      radial-gradient(ellipse 60% 30% at 80% 100%, #e8c9b055 0%, transparent 60%);
+  }
+  header {
+    background: var(--ocean);
+    color: white;
+    padding: 28px 24px 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    bottom: -12px; left: 0; right: 0;
+    height: 26px;
+    background: var(--sand);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    z-index: 2;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .header-emoji { font-size: 2.2rem; display: block; margin-bottom: 6px; }
+  header h1 { font-family: 'Fraunces', serif; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; }
+  header p { font-size: 0.82rem; opacity: 0.75; margin-top: 6px; font-weight: 300; letter-spacing: 0.3px; }
+
+  .whatsapp-note {
+    background: #e9f7ef;
+    border-left: 3px solid #25d366;
+    margin: 20px 16px 0;
+    padding: 10px 14px;
+    border-radius: 0 10px 10px 0;
+    font-size: 0.78rem;
+    color: #1a6032;
+    line-height: 1.5;
+  }
+  .whatsapp-note strong { display: block; margin-bottom: 2px; font-size: 0.8rem; }
+
+  .container { padding: 16px 16px 160px; max-width: 520px; margin: 0 auto; }
+  .day-section { margin-bottom: 28px; }
+
+  .day-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px; padding: 10px 14px;
+    background: var(--ocean); border-radius: 14px; color: white;
+  }
+  .day-badge {
+    background: var(--coral); color: white; font-size: 0.65rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px; padding: 3px 9px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .day-title { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; flex: 1; }
+  .day-emoji { font-size: 1.2rem; }
+
+  .category-label {
+    font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--ocean); margin: 14px 0 6px 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .category-label::after { content: ''; flex: 1; height: 1px; background: var(--mist); opacity: 0.6; }
+
+  .option-card {
+    background: white; border-radius: 14px; margin-bottom: 8px;
+    padding: 13px 14px; display: flex; align-items: flex-start; gap: 12px;
+    cursor: pointer; border: 2px solid transparent; transition: all 0.18s ease;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    user-select: none; -webkit-user-select: none;
+    touch-action: manipulation;
+    position: relative;
+  }
+  .option-card:active { transform: scale(0.98); }
+  .map-pin-btn { position: relative; z-index: 2; }
+  .option-card.checked { background: var(--checked-bg); border-color: var(--ocean-light); }
+
+  .checkbox {
+    width: 22px; height: 22px; border-radius: 6px; border: 2px solid #ccc;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px; transition: all 0.15s ease; background: white;
+  }
+  .option-card.checked .checkbox { background: var(--ocean); border-color: var(--ocean); }
+  .checkmark { color: white; font-size: 13px; font-weight: 700; opacity: 0; transform: scale(0.5); transition: all 0.15s ease; }
+  .option-card.checked .checkmark { opacity: 1; transform: scale(1); }
+
+  .option-info { flex: 1; min-width: 0; }
+  .option-name { font-size: 0.9rem; font-weight: 600; line-height: 1.3; color: var(--text); }
+  .option-card.checked .option-name { color: var(--ocean); }
+  .option-desc { font-size: 0.75rem; color: #7a8e94; margin-top: 2px; line-height: 1.4; font-weight: 300; }
+  .option-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; align-items: center; }
+
+  .tag { font-size: 0.62rem; padding: 2px 7px; border-radius: 20px; font-weight: 500; letter-spacing: 0.2px; }
+  .tag-free { background: #e8f5e9; color: #2e7d32; }
+  .tag-paid { background: #fff3e0; color: #e65100; }
+  .tag-food { background: #fce4ec; color: #c2185b; }
+  .tag-activity { background: #e3f2fd; color: #1565c0; }
+  .tag-scenic { background: #f3e5f5; color: #6a1b9a; }
+  .tag-games { background: #e8f5e9; color: #1b5e20; }
+
+  .map-pin-btn {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 0.62rem; font-weight: 600; color: var(--coral);
+    background: #fff0eb; border: 1px solid #f5c4b0; border-radius: 20px;
+    padding: 2px 8px; text-decoration: none; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; font-family: 'DM Sans', sans-serif;
+  }
+  .map-pin-btn:hover { background: var(--coral); color: white; border-color: var(--coral); }
+  .map-pin-btn svg { width: 10px; height: 10px; flex-shrink: 0; }
+
+  /* Map section */
+  .map-section {
+    background: white; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.1); margin-bottom: 16px;
+  }
+  .map-section-header {
+    padding: 14px 16px 10px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .map-section-title { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; color: var(--ocean); }
+  .map-section-sub { font-size: 0.72rem; color: #999; margin-top: 2px; }
+  .map-toggle-btn {
+    background: var(--foam); border: none; color: var(--ocean); font-size: 0.75rem;
+    font-weight: 600; padding: 6px 12px; border-radius: 20px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; white-space: nowrap;
+  }
+  #mapFrame { width: 100%; height: 300px; border: none; display: block; }
+  .map-empty {
+    height: 130px; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 6px; color: #aaa; font-size: 0.8rem;
+    padding: 16px; text-align: center;
+  }
+  .map-empty-icon { font-size: 2rem; }
+  .map-pills { padding: 8px 16px 14px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .map-pill {
+    font-size: 0.68rem; font-weight: 500; padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--mist); color: var(--ocean); background: var(--foam);
+    cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+  }
+  .map-pill:hover { background: var(--ocean); color: white; }
+  .map-pill.day2 { border-color: #f5c4b0; color: var(--coral); background: #fff8f5; }
+  .map-pill.day2:hover { background: var(--coral); color: white; }
+  .map-pill.all { background: var(--ocean); color: white; border-color: var(--ocean); }
+  .map-pill.all:hover { background: var(--dusk); border-color: var(--dusk); }
+
+  /* Sticky bar */
+  .summary-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--dusk); color: white; padding: 14px 20px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 -4px 24px rgba(61,43,69,0.25); z-index: 50;
+  }
+  .summary-text { font-size: 0.82rem; opacity: 0.8; }
+  .summary-count { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 700; }
+  .summary-btns { display: flex; gap: 8px; }
+
+  .copy-btn {
+    background: var(--coral); color: white; border: none; padding: 9px 14px;
+    border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+    font-weight: 600; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .copy-btn:active { transform: scale(0.96); }
+  .view-map-btn {
+    background: var(--ocean-light); color: white; border: none; padding: 9px 14px;
+    border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+    font-weight: 600; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .view-map-btn:active { transform: scale(0.96); }
+
+  .copied-toast {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    background: #1a6032; color: white; padding: 10px 20px;
+    border-radius: 25px; font-size: 0.82rem; font-weight: 500;
+    opacity: 0; transition: opacity 0.3s; z-index: 100; pointer-events: none; white-space: nowrap;
+  }
+  .copied-toast.show { opacity: 1; }
+
+  .name-input-wrap {
+    background: white; border-radius: 14px; padding: 13px 14px;
+    margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    display: flex; align-items: center; gap: 10px; border: 2px solid var(--mist);
+  }
+  .name-input-wrap label { font-size: 0.8rem; font-weight: 600; color: var(--ocean); white-space: nowrap; }
+  .name-input { border: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; flex: 1; color: var(--text); background: transparent; }
+  .name-input::placeholder { color: #bbb; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="header-emoji">🌊</span>
+  <h1>Rosebud Getaway<br>— Vote Your Picks</h1>
+  <p>Tick what you want · Tap 📍 for directions · Share in the group chat</p>
+</header>
+
+<div class="container">
+
+  <div class="whatsapp-note">
+    <strong>📲 How to use this</strong>
+    Tick everything you're keen for → tap 📍 Maps on any card to get directions → hit "Copy" and paste your picks into WhatsApp!
+  </div>
+
+  <div style="margin-top:16px;">
+    <div class="name-input-wrap">
+      <label>👤 Your name</label>
+      <input class="name-input" id="voterName" type="text" placeholder="e.g. Jake" maxlength="20">
+    </div>
+  </div>
+
+  <!-- DAY 1 -->
+  <div class="day-section">
+    <div class="day-header">
+      <span class="day-badge">Day 1</span>
+      <span class="day-title">Melbourne → Rosebud</span>
+      <span class="day-emoji">🚗</span>
+    </div>
+
+    <div class="category-label">🏖️ Beaches & Coastal</div>
+
+    <div class="option-card" data-day="1" data-name="Frankston Beach — breakfast picnic & leg stretch" data-lat="-38.1418" data-lng="145.1197" data-maps="https://maps.google.com/?q=Frankston+Beach+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Frankston Beach</div>
+        <div class="option-desc">Breakfast picnic & morning stretch by the water</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Frankston+Beach+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="1" data-name="Rosebud Beach — sunset arrival walk" data-lat="-38.3568" data-lng="144.9013" data-maps="https://maps.google.com/?q=Rosebud+Beach+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Rosebud Beach — Sunset Walk</div>
+        <div class="option-desc">Arrive at golden hour and walk the beach together</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Rosebud+Beach+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="1" data-name="Fingal Beach Lookout — coastal views" data-lat="-38.4417" data-lng="144.8279" data-maps="https://maps.google.com/?q=Fingal+Beach+Lookout+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Fingal Beach Lookout</div>
+        <div class="option-desc">Elevated coastal views, great for photos (~30 min)</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Fingal+Beach+Lookout+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="category-label">🏔️ Lookouts & Nature</div>
+
+    <div class="option-card" data-day="1" data-name="Arthurs Seat Lookout — panoramic Peninsula views" data-lat="-38.3583" data-lng="144.9417" data-maps="https://maps.google.com/?q=Arthurs+Seat+Lookout+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Arthurs Seat Lookout</div>
+        <div class="option-desc">Panoramic views over the Mornington Peninsula (~60 min)</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Arthurs+Seat+Lookout+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="1" data-name="Arthurs Seat Eagle — gondola ride (~$25pp)" data-lat="-38.3583" data-lng="144.9417" data-maps="https://maps.google.com/?q=Arthurs+Seat+Eagle+Gondola+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Arthurs Seat Eagle — Gondola</div>
+        <div class="option-desc">Cable car ride with epic views (~$25pp)</div>
+        <div class="option-tags"><span class="tag tag-paid">~$25pp</span><span class="tag tag-activity">Activity</span><a class="map-pin-btn" href="https://maps.google.com/?q=Arthurs+Seat+Eagle+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="1" data-name="Cape Schanck Lighthouse & Boardwalk" data-lat="-38.4958" data-lng="144.8894" data-maps="https://maps.google.com/?q=Cape+Schanck+Lighthouse+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Cape Schanck Lighthouse & Boardwalk</div>
+        <div class="option-desc">Iconic lighthouse, dramatic ocean boardwalk (~90 min)</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Cape+Schanck+Lighthouse+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="1" data-name="Mornington Peninsula National Park — coastal walk" data-lat="-38.4800" data-lng="144.8700" data-maps="https://maps.google.com/?q=Mornington+Peninsula+National+Park+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Mornington Peninsula National Park</div>
+        <div class="option-desc">Coastal bushwalk with stunning cliff views</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Mornington+Peninsula+National+Park" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="category-label">🍔 Food Stops</div>
+
+    <div class="option-card" data-day="1" data-name="Hungry Jack's — Frankston or Mornington lunch" data-lat="-38.1440" data-lng="145.1195" data-maps="https://maps.google.com/?q=Hungry+Jacks+Frankston+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Hungry Jack's — Lunch Stop</div>
+        <div class="option-desc">Frankston or Mornington (~$12–15pp)</div>
+        <div class="option-tags"><span class="tag tag-food">Food</span><span class="tag tag-paid">Budget</span><a class="map-pin-btn" href="https://maps.google.com/?q=Hungry+Jacks+Frankston+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="1" data-name="Mornington Main Street Café — coffee & snack stop" data-lat="-38.2185" data-lng="145.0378" data-maps="https://maps.google.com/?q=Mornington+Main+Street+cafes+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Mornington Main Street Café</div>
+        <div class="option-desc">Quick coffee & snack in the village (~$8–12pp)</div>
+        <div class="option-tags"><span class="tag tag-food">Food</span><span class="tag tag-paid">~$10pp</span><a class="map-pin-btn" href="https://maps.google.com/?q=Mornington+Main+Street+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-section">
+    <div class="day-header">
+      <span class="day-badge">Day 2</span>
+      <span class="day-title">Full Day on the Peninsula</span>
+      <span class="day-emoji">🤿</span>
+    </div>
+
+    <div class="category-label">🏄 Water Activities</div>
+
+    <div class="option-card" data-day="2" data-name="Rye Pier — snorkelling" data-lat="-38.3792" data-lng="144.8283" data-maps="https://maps.google.com/?q=Rye+Pier+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Rye Pier — Snorkelling</div>
+        <div class="option-desc">Snorkel under the pier — gear from Kmart Rosebud (~$15–20pp)</div>
+        <div class="option-tags"><span class="tag tag-activity">Activity</span><span class="tag tag-paid">~$20pp gear</span><a class="map-pin-btn" href="https://maps.google.com/?q=Rye+Pier+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Extreme Watersport Capel Sound — kayak & paddleboard hire" data-lat="-38.3617" data-lng="144.8783" data-maps="https://maps.google.com/?q=Extreme+Watersport+Capel+Sound+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Extreme Watersport, Capel Sound</div>
+        <div class="option-desc">Kayak & paddleboard hire — call ahead: +61 3 5982 3432</div>
+        <div class="option-tags"><span class="tag tag-activity">Activity</span><span class="tag tag-paid">Paid hire</span><a class="map-pin-btn" href="https://maps.google.com/?q=Extreme+Watersport+Capel+Sound+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Sorrento Back Beach — rock pools, swim & coastal walk" data-lat="-38.3558" data-lng="144.7408" data-maps="https://maps.google.com/?q=Sorrento+Back+Beach+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Sorrento Back Beach</div>
+        <div class="option-desc">Rock pool swim, coastal walk, explore the pools (~2 hrs)</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-activity">Activity</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Sorrento+Back+Beach+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Rosebud Beach — morning swim" data-lat="-38.3568" data-lng="144.9013" data-maps="https://maps.google.com/?q=Rosebud+Beach+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Rosebud Beach — Morning Swim</div>
+        <div class="option-desc">Easy walk from Airbnb, calm bay water swim</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-activity">Activity</span><a class="map-pin-btn" href="https://maps.google.com/?q=Rosebud+Beach+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="category-label">🏸 Group Games</div>
+
+    <div class="option-card" data-day="2" data-name="Backyard badminton at Airbnb" data-lat="-38.3560" data-lng="144.9000" data-maps="https://maps.google.com/?q=235+Eastbourne+Road,+Rosebud+VIC+3939">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Backyard Badminton</div>
+        <div class="option-desc">Pack rackets or grab a cheap set from Kmart (~$20–30)</div>
+        <div class="option-tags"><span class="tag tag-games">Games</span><span class="tag tag-free">Free/cheap</span><a class="map-pin-btn" href="https://maps.google.com/?q=235+Eastbourne+Road,+Rosebud+VIC+3939" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Airbnb</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Backyard cricket" data-lat="-38.3560" data-lng="144.9000" data-maps="https://maps.google.com/?q=235+Eastbourne+Road,+Rosebud+VIC+3939">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Backyard Cricket</div>
+        <div class="option-desc">At the Airbnb or nearest oval — bring or buy a set</div>
+        <div class="option-tags"><span class="tag tag-games">Games</span><span class="tag tag-free">Free/cheap</span><a class="map-pin-btn" href="https://maps.google.com/?q=235+Eastbourne+Road,+Rosebud+VIC+3939" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Airbnb</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Park games — frisbee, footy kick, touch" data-lat="-38.3571" data-lng="144.9020" data-maps="https://maps.google.com/?q=Rosebud+Reserve+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Park Games — Frisbee / Footy / Touch</div>
+        <div class="option-desc">Head to a nearby oval for a relaxed kick or throw</div>
+        <div class="option-tags"><span class="tag tag-games">Games</span><span class="tag tag-free">Free</span><a class="map-pin-btn" href="https://maps.google.com/?q=Rosebud+Reserve+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="category-label">🏊 Pool & Relaxation</div>
+
+    <div class="option-card" data-day="2" data-name="Airbnb pool hang — swim & chill together" data-lat="-38.3560" data-lng="144.9000" data-maps="https://maps.google.com/?q=235+Eastbourne+Road,+Rosebud+VIC+3939">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Airbnb Pool Hang</div>
+        <div class="option-desc">Swim, float and chill together at the house</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-activity">Activity</span><a class="map-pin-btn" href="https://maps.google.com/?q=235+Eastbourne+Road,+Rosebud+VIC+3939" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Airbnb</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Peninsula Aquatic Centre — public pool swim" data-lat="-38.3610" data-lng="144.9040" data-maps="https://maps.google.com/?q=Peninsula+Aquatic+Centre+Rosebud+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Peninsula Aquatic Centre — Public Pool</div>
+        <div class="option-desc">Indoor/outdoor public pool in the area (~$8–12pp)</div>
+        <div class="option-tags"><span class="tag tag-paid">~$10pp</span><span class="tag tag-activity">Activity</span><a class="map-pin-btn" href="https://maps.google.com/?q=Peninsula+Aquatic+Centre+Rosebud+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="category-label">✝️ Easter Sunday</div>
+
+    <div class="option-card" data-day="2" data-name="Easter Sunday church service — local Rosebud church" data-lat="-38.3572" data-lng="144.9018" data-maps="https://maps.google.com/?q=churches+near+Rosebud+VIC+3939">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Easter Sunday Church Service</div>
+        <div class="option-desc">Attend a local Rosebud or Peninsula church — morning service (~1 hr)</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-activity">Experience</span><a class="map-pin-btn" href="https://maps.google.com/?q=churches+near+Rosebud+VIC+3939" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="category-label">🌅 Scenic Viewpoints</div>
+
+    <div class="option-card" data-day="2" data-name="Arthurs Seat — panoramic Peninsula viewpoint" data-lat="-38.3583" data-lng="144.9417" data-maps="https://maps.google.com/?q=Arthurs+Seat+Lookout+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Arthurs Seat — Panoramic Viewpoint</div>
+        <div class="option-desc">Best 360° views — Bay & Bass Strait in one shot</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Arthurs+Seat+Lookout+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Sorrento clifftop walk — Back Beach viewpoint" data-lat="-38.3558" data-lng="144.7408" data-maps="https://maps.google.com/?q=Sorrento+Back+Beach+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Sorrento Clifftop Walk — Back Beach</div>
+        <div class="option-desc">Dramatic Bass Strait views from the clifftops</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Sorrento+Back+Beach+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Cape Schanck — lighthouse viewpoint & blowhole" data-lat="-38.4958" data-lng="144.8894" data-maps="https://maps.google.com/?q=Cape+Schanck+Lighthouse+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Cape Schanck — Lighthouse Viewpoint</div>
+        <div class="option-desc">Rugged ocean views & blowhole, southernmost tip of the Peninsula</div>
+        <div class="option-tags"><span class="tag tag-free">Free</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Cape+Schanck+Lighthouse+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="category-label">🍷 Food & Experiences</div>
+
+    <div class="option-card" data-day="2" data-name="Polperro Winery Red Hill — wine tastings" data-lat="-38.3783" data-lng="145.0017" data-maps="https://maps.google.com/?q=Polperro+Winery+Red+Hill+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Polperro Winery, Red Hill</div>
+        <div class="option-desc">Wine tastings (~$15–20pp) — closed Mon & Tue, confirm day!</div>
+        <div class="option-tags"><span class="tag tag-paid">~$20pp</span><span class="tag tag-activity">Experience</span><a class="map-pin-btn" href="https://maps.google.com/?q=Polperro+Winery+Red+Hill+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Baro Turkish Restaurant Rosebud — dinner for 7" data-lat="-38.3564" data-lng="144.9005" data-maps="https://maps.google.com/?q=Baro+Turkish+Restaurant+Rosebud+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Baro Turkish Restaurant — Dinner</div>
+        <div class="option-desc">Book ahead for 7 people in Rosebud</div>
+        <div class="option-tags"><span class="tag tag-food">Dinner</span><span class="tag tag-paid">Paid</span><a class="map-pin-btn" href="https://maps.google.com/?q=Baro+Turkish+Restaurant+Rosebud+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Sorrento main street — lunch & explore" data-lat="-38.3378" data-lng="144.7428" data-maps="https://maps.google.com/?q=Sorrento+main+street+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Sorrento Main Street — Lunch & Explore</div>
+        <div class="option-desc">Charming village, great cafés and fish & chips</div>
+        <div class="option-tags"><span class="tag tag-food">Food</span><span class="tag tag-scenic">Scenic</span><a class="map-pin-btn" href="https://maps.google.com/?q=Sorrento+main+street+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+
+    <div class="option-card" data-day="2" data-name="Peninsula Hot Springs — soak & relax" data-lat="-38.4092" data-lng="144.8856" data-maps="https://maps.google.com/?q=Peninsula+Hot+Springs+VIC">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div class="option-info">
+        <div class="option-name">Peninsula Hot Springs</div>
+        <div class="option-desc">Book ahead — natural thermal pools (~$50–70pp)</div>
+        <div class="option-tags"><span class="tag tag-paid">~$60pp</span><span class="tag tag-activity">Experience</span><a class="map-pin-btn" href="https://maps.google.com/?q=Peninsula+Hot+Springs+VIC" target="_blank" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Maps</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE MAP SUMMARY -->
+  <div class="map-section" id="mapSection">
+    <div class="map-section-header">
+      <div>
+        <div class="map-section-title">🗺️ Your Selected Spots</div>
+        <div class="map-section-sub" id="mapSubtitle">Tick activities above to see them here</div>
+      </div>
+      <button class="map-toggle-btn" onclick="toggleMapSize()">Expand ↕</button>
+    </div>
+    <div id="mapContainer">
+      <div class="map-empty" id="mapEmpty">
+        <span class="map-empty-icon">📍</span>
+        <span>Tick some activities above<br>and your spots will appear on the map</span>
+      </div>
+      <iframe id="mapFrame" style="display:none; width:100%; height:300px; border:none;" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="map-pills" id="mapPills"></div>
+  </div>
+
+  <!-- Sticky bar -->
+  <div class="summary-bar">
+    <div>
+      <div class="summary-text">Selected</div>
+      <div class="summary-count" id="selectedCount">0</div>
+    </div>
+    <div class="summary-btns">
+      <button class="view-map-btn" onclick="scrollToMap()">🗺️ Map</button>
+      <button class="copy-btn" onclick="copyVotes()">📋 Copy</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="copied-toast" id="toast">✅ Copied! Paste into WhatsApp</div>
+
+<script>
+  let mapExpanded = false;
+
+  // iOS Safari fix: attach both touchend and click to every card
+  // touchend fires first; we track it so click doesn't double-fire
+  function attachCardListeners() {
+    document.querySelectorAll('.option-card').forEach(card => {
+      let touchMoved = false;
+
+      card.addEventListener('touchstart', function() {
+        touchMoved = false;
+      }, { passive: true });
+
+      card.addEventListener('touchmove', function() {
+        touchMoved = true;
+      }, { passive: true });
+
+      card.addEventListener('touchend', function(e) {
+        // If the touch target was the Maps link, don't toggle the card
+        if (e.target.closest('.map-pin-btn')) return;
+        if (touchMoved) return;
+        e.preventDefault(); // prevent the subsequent mouse click from firing
+        toggleCard(this);
+      });
+
+      // Fallback for non-touch (desktop)
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('.map-pin-btn')) return;
+        // Only run if this wasn't already handled by touchend
+        if (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
+        toggleCard(this);
+      });
+    });
+  }
+
+  function toggleCard(card) {
+    card.classList.toggle('checked');
+    updateCount();
+    updateMap();
+  }
+
+  // Legacy inline onclick fallback (keeps old markup working too)
+  function toggle(card) {
+    card.classList.toggle('checked');
+    updateCount();
+    updateMap();
+  }
+
+  document.addEventListener('DOMContentLoaded', attachCardListeners);
+
+  function updateCount() {
+    const n = document.querySelectorAll('.option-card.checked').length;
+    document.getElementById('selectedCount').textContent = n;
+  }
+
+  function updateMap() {
+    const checked = document.querySelectorAll('.option-card.checked');
+    const mapFrame = document.getElementById('mapFrame');
+    const mapEmpty = document.getElementById('mapEmpty');
+    const mapPills = document.getElementById('mapPills');
+    const mapSubtitle = document.getElementById('mapSubtitle');
+
+    mapPills.innerHTML = '';
+
+    if (checked.length === 0) {
+      mapFrame.style.display = 'none';
+      mapEmpty.style.display = 'flex';
+      mapSubtitle.textContent = 'Tick activities above to see them here';
+      return;
+    }
+
+    // Collect unique coords (deduplicate same-location items like Airbnb)
+    const seen = new Set();
+    const locations = [];
+    checked.forEach(card => {
+      const lat = card.getAttribute('data-lat');
+      const lng = card.getAttribute('data-lng');
+      const name = card.getAttribute('data-name');
+      const day = card.getAttribute('data-day');
+      const mapsUrl = card.getAttribute('data-maps');
+      const key = `${lat},${lng}`;
+      if (lat && lng) {
+        locations.push({ lat, lng, name, day, mapsUrl, key });
+        seen.add(key);
+      }
+    });
+
+    if (locations.length === 0) return;
+
+    // Centre of all points
+    const avgLat = locations.reduce((s, l) => s + parseFloat(l.lat), 0) / locations.length;
+    const avgLng = locations.reduce((s, l) => s + parseFloat(l.lng), 0) / locations.length;
+
+    // Bounding box padding
+    const lats = locations.map(l => parseFloat(l.lat));
+    const lngs = locations.map(l => parseFloat(l.lng));
+    const pad = 0.05;
+    const minLat = Math.min(...lats) - pad;
+    const maxLat = Math.max(...lats) + pad;
+    const minLng = Math.min(...lngs) - pad;
+    const maxLng = Math.max(...lngs) + pad;
+
+    // Build OpenStreetMap embed (no API key needed)
+    const markerParams = locations.map(l => `marker=${l.lat}%2C${l.lng}`).join('&');
+    const osmUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${minLng},${minLat},${maxLng},${maxLat}&layer=mapnik&${markerParams}`;
+
+    mapFrame.src = osmUrl;
+    mapFrame.style.display = 'block';
+    mapEmpty.style.display = 'none';
+    mapSubtitle.textContent = `${locations.length} spot${locations.length !== 1 ? 's' : ''} selected`;
+
+    // Build location pills
+    locations.forEach(loc => {
+      const pill = document.createElement('button');
+      pill.className = `map-pill day${loc.day}`;
+      const shortName = loc.name.split(' — ')[0].substring(0, 24);
+      pill.textContent = `📍 ${shortName}`;
+      pill.onclick = () => window.open(loc.mapsUrl, '_blank');
+      mapPills.appendChild(pill);
+    });
+
+    // "Open all in Google Maps" route button
+    if (locations.length > 1) {
+      const allBtn = document.createElement('button');
+      allBtn.className = 'map-pill all';
+      allBtn.textContent = '🗺️ Route in Google Maps';
+      const routeUrl = buildRoute(locations);
+      allBtn.onclick = () => window.open(routeUrl, '_blank');
+      mapPills.appendChild(allBtn);
+    }
+  }
+
+  function buildRoute(locations) {
+    const origin = encodeURIComponent(`${locations[0].lat},${locations[0].lng}`);
+    const dest = encodeURIComponent(`${locations[locations.length - 1].lat},${locations[locations.length - 1].lng}`);
+    const mid = locations.slice(1, -1);
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}`;
+    if (mid.length) {
+      const wps = mid.map(l => encodeURIComponent(`${l.lat},${l.lng}`)).join('|');
+      url += `&waypoints=${wps}`;
+    }
+    return url;
+  }
+
+  function toggleMapSize() {
+    const frame = document.getElementById('mapFrame');
+    const btn = document.querySelector('.map-toggle-btn');
+    mapExpanded = !mapExpanded;
+    frame.style.height = mapExpanded ? '480px' : '300px';
+    btn.textContent = mapExpanded ? 'Collapse ↕' : 'Expand ↕';
+  }
+
+  function scrollToMap() {
+    document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (document.querySelectorAll('.option-card.checked').length === 0) {
+      document.getElementById('mapSubtitle').textContent = '⬆️ Tick activities above first!';
+      setTimeout(() => {
+        document.getElementById('mapSubtitle').textContent = 'Tick activities above to see them here';
+      }, 2000);
+    }
+  }
+
+  function copyVotes() {
+    const name = document.getElementById('voterName').value.trim() || 'Someone';
+    const checked = document.querySelectorAll('.option-card.checked');
+
+    if (checked.length === 0) { alert('Tick at least one activity first! 😊'); return; }
+
+    let day1 = [], day2 = [];
+    checked.forEach(card => {
+      const day = card.getAttribute('data-day');
+      const n = card.getAttribute('data-name');
+      const maps = card.getAttribute('data-maps');
+      if (day === '1') day1.push(`  ✅ ${n}`);
+      else day2.push(`  ✅ ${n}`);
+    });
+
+    let msg = `🌊 *Rosebud Getaway — ${name}'s Picks*\n\n`;
+    if (day1.length) msg += `*📅 Day 1 — Drive Down:*\n${day1.join('\n')}\n\n`;
+    if (day2.length) msg += `*📅 Day 2 — Full Day:*\n${day2.join('\n')}\n`;
+    msg += `\n(${checked.length} activit${checked.length === 1 ? 'y' : 'ies'} selected)`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(msg).then(showToast).catch(() => fallbackCopy(msg));
+    } else { fallbackCopy(msg); }
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast();
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
