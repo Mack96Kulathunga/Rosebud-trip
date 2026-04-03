@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Rosebud Getaway — Vote Your Picks 🌊</title>
+<style>
+  :root {
+    --sand: #f5efe6;
+    --ocean: #1a6b7c;
+    --ocean-light: #2a8fa3;
+    --coral: #e07b5a;
+    --dusk: #3d2b45;
+    --mist: #a8c8d0;
+    --text: #1e2a2e;
+    --checked-bg: #d4eeef;
+    --checked-border: #2a8fa3;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--sand);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ocean);
+    color: white;
+    padding: 28px 20px 32px;
+    text-align: center;
+    position: relative;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -14px; left: 0; right: 0;
+    height: 28px;
+    background: var(--sand);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  }
+  .header-emoji { font-size: 2.2rem; display: block; margin-bottom: 6px; }
+  header h1 {
+    font-family: Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  header p { font-size: 0.8rem; opacity: 0.78; margin-top: 7px; }
+
+  /* ── LAYOUT ── */
+  .container { padding: 24px 16px 140px; max-width: 500px; margin: 0 auto; }
+
+  /* ── WHATSAPP NOTE ── */
+  .wa-note {
+    background: #e9f7ef;
+    border-left: 4px solid #25d366;
+    border-radius: 0 10px 10px 0;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 0.78rem;
+    color: #1a5c30;
+    line-height: 1.55;
+  }
+  .wa-note strong { display: block; font-size: 0.82rem; margin-bottom: 2px; }
+
+  /* ── NAME INPUT ── */
+  .name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border: 2px solid var(--mist);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 22px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .name-row label { font-size: 0.82rem; font-weight: 600; color: var(--ocean); white-space: nowrap; }
+  .name-row input {
+    border: none; outline: none; flex: 1;
+    font-family: inherit; font-size: 0.9rem;
+    color: var(--text); background: transparent;
+  }
+  .name-row input::placeholder { color: #bbb; }
+
+  /* ── DAY HEADER ── */
+  .day-header {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--ocean); color: white;
+    border-radius: 14px; padding: 10px 14px;
+    margin-bottom: 14px;
+  }
+  .day-badge {
+    background: var(--coral); font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 9px; border-radius: 20px; white-space: nowrap;
+  }
+  .day-title { font-family: Georgia, serif; font-size: 0.95rem; font-weight: 700; flex: 1; }
+
+  /* ── CATEGORY ── */
+  .cat {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.3px; color: var(--ocean);
+    margin: 16px 0 7px 2px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .cat::after { content: ''; flex: 1; height: 1px; background: var(--mist); opacity: 0.7; }
+
+  /* ── THE CORE: native checkbox hidden, label styled as card ── */
+  .item { margin-bottom: 8px; }
+
+  /* Hide the real checkbox but keep it accessible */
+  .item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0; height: 0;
+    pointer-events: none;
+  }
+
+  /* The label IS the card — iOS taps labels natively, no JS needed */
+  .item label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 13px 14px;
+    cursor: pointer;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+    transition: background 0.15s, border-color 0.15s;
+    /* Critical for iOS tap targets */
+    -webkit-tap-highlight-color: rgba(42,143,163,0.15);
+    min-height: 56px;
+  }
+
+  /* Checked state — driven purely by CSS :checked */
+  .item input[type="checkbox"]:checked + label {
+    background: var(--checked-bg);
+    border-color: var(--checked-border);
+  }
+
+  /* Custom checkbox box inside the label */
+  .box {
+    width: 24px; height: 24px; min-width: 24px;
+    border-radius: 7px;
+    border: 2px solid #ccc;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .box svg { display: none; }
+
+  .item input[type="checkbox"]:checked + label .box {
+    background: var(--ocean);
+    border-color: var(--ocean);
+  }
+  .item input[type="checkbox"]:checked + label .box svg { display: block; }
+
+  /* Text content */
+  .info { flex: 1; }
+  .iname {
+    font-size: 0.9rem; font-weight: 600; line-height: 1.3; color: var(--text);
+  }
+  .item input[type="checkbox"]:checked + label .iname { color: var(--ocean); }
+
+  .idesc {
+    font-size: 0.74rem; color: #7a8e94; margin-top: 3px; line-height: 1.4;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .tag {
+    font-size: 0.6rem; padding: 2px 7px; border-radius: 20px; font-weight: 600;
+  }
+  .tf { background: #e8f5e9; color: #2e7d32; }
+  .tp { background: #fff3e0; color: #e65100; }
+  .td { background: #fce4ec; color: #c2185b; }
+  .ta { background: #e3f2fd; color: #1565c0; }
+  .ts { background: #f3e5f5; color: #6a1b9a; }
+  .tg { background: #e8f5e9; color: #1b5e20; }
+
+  /* ── STICKY BOTTOM BAR ── */
+  .bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--dusk); color: white;
+    padding: 13px 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    z-index: 99;
+  }
+  .bar-left .lbl { font-size: 0.75rem; opacity: 0.75; }
+  .bar-left .cnt {
+    font-family: Georgia, serif; font-size: 1.6rem; font-weight: 700;
+    line-height: 1;
+  }
+  .btn-copy {
+    background: var(--coral); color: white; border: none;
+    padding: 11px 20px; border-radius: 12px;
+    font-family: inherit; font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.2px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-copy:active { opacity: 0.85; transform: scale(0.97); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    background: #1a6032; color: white;
+    padding: 10px 22px; border-radius: 30px;
+    font-size: 0.82rem; font-weight: 600;
+    opacity: 0; transition: opacity 0.25s;
+    pointer-events: none; white-space: nowrap; z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+
+  .day-section { margin-bottom: 30px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="header-emoji">🌊</span>
+  <h1>Rosebud Getaway<br>Vote Your Picks</h1>
+  <p>Tick what you want · Copy & paste into WhatsApp</p>
+</header>
+
+<div class="container">
+
+  <div class="wa-note">
+    <strong>📲 How to use</strong>
+    Enter your name · tick everything you're keen for · tap <b>Copy My Votes</b> · paste into the group chat!
+  </div>
+
+  <div class="name-row">
+    <label for="vname">👤 Your name</label>
+    <input id="vname" type="text" placeholder="e.g. Jake" maxlength="20" autocomplete="off">
+  </div>
+
+  <!-- ════════════ DAY 1 ════════════ -->
+  <div class="day-section">
+    <div class="day-header">
+      <span class="day-badge">Day 1</span>
+      <span class="day-title">Melbourne → Rosebud</span>
+      <span>🚗</span>
+    </div>
+
+    <div class="cat">🏖️ Beaches &amp; Coastal</div>
+
+    <div class="item">
+      <input type="checkbox" id="c1" data-day="1" data-name="Frankston Beach — breakfast picnic &amp; leg stretch">
+      <label for="c1">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Frankston Beach</span>
+          <span class="idesc">Breakfast picnic &amp; morning stretch by the water</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="c2" data-day="1" data-name="Rosebud Beach — sunset arrival walk">
+      <label for="c2">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Rosebud Beach — Sunset Walk</span>
+          <span class="idesc">Arrive at golden hour and walk the beach together</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="c3" data-day="1" data-name="Fingal Beach Lookout — coastal views">
+      <label for="c3">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Fingal Beach Lookout</span>
+          <span class="idesc">Elevated coastal views, great for photos (~30 min)</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="cat">🏔️ Lookouts &amp; Nature</div>
+
+    <div class="item">
+      <input type="checkbox" id="c4" data-day="1" data-name="Arthurs Seat Lookout — panoramic Peninsula views">
+      <label for="c4">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Arthurs Seat Lookout</span>
+          <span class="idesc">Panoramic views over the Mornington Peninsula (~60 min)</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="c5" data-day="1" data-name="Arthurs Seat Eagle — gondola ride (~$25pp)">
+      <label for="c5">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Arthurs Seat Eagle — Gondola</span>
+          <span class="idesc">Cable car ride with epic views</span>
+          <span class="tags"><span class="tag tp">~$25pp</span><span class="tag ta">Activity</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="c6" data-day="1" data-name="Cape Schanck Lighthouse &amp; Boardwalk">
+      <label for="c6">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Cape Schanck Lighthouse &amp; Boardwalk</span>
+          <span class="idesc">Iconic lighthouse, dramatic ocean boardwalk (~90 min)</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="c7" data-day="1" data-name="Mornington Peninsula National Park — coastal walk">
+      <label for="c7">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Mornington Peninsula National Park</span>
+          <span class="idesc">Coastal bushwalk with stunning cliff views</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="cat">🍔 Food Stops</div>
+
+    <div class="item">
+      <input type="checkbox" id="c8" data-day="1" data-name="Hungry Jack's — Frankston or Mornington lunch">
+      <label for="c8">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Hungry Jack's — Lunch Stop</span>
+          <span class="idesc">Frankston or Mornington (~$12–15pp)</span>
+          <span class="tags"><span class="tag td">Food</span><span class="tag tp">Budget</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="c9" data-day="1" data-name="Mornington Main Street Café — coffee &amp; snack">
+      <label for="c9">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Mornington Main Street Café</span>
+          <span class="idesc">Quick coffee &amp; snack in the village (~$8–12pp)</span>
+          <span class="tags"><span class="tag td">Food</span><span class="tag tp">~$10pp</span></span>
+        </span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ════════════ DAY 2 ════════════ -->
+  <div class="day-section">
+    <div class="day-header">
+      <span class="day-badge">Day 2</span>
+      <span class="day-title">Full Day on the Peninsula</span>
+      <span>🤿</span>
+    </div>
+
+    <div class="cat">🏄 Water Activities</div>
+
+    <div class="item">
+      <input type="checkbox" id="d1" data-day="2" data-name="Rye Pier — snorkelling (gear from Kmart ~$20pp)">
+      <label for="d1">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Rye Pier — Snorkelling</span>
+          <span class="idesc">Snorkel under the pier — gear from Kmart Rosebud (~$15–20pp)</span>
+          <span class="tags"><span class="tag ta">Activity</span><span class="tag tp">~$20pp gear</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d2" data-day="2" data-name="Extreme Watersport Capel Sound — kayak &amp; paddleboard hire">
+      <label for="d2">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Extreme Watersport, Capel Sound</span>
+          <span class="idesc">Kayak &amp; paddleboard hire — call ahead: +61 3 5982 3432</span>
+          <span class="tags"><span class="tag ta">Activity</span><span class="tag tp">Paid hire</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d3" data-day="2" data-name="Sorrento Back Beach — rock pools, swim &amp; coastal walk">
+      <label for="d3">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Sorrento Back Beach</span>
+          <span class="idesc">Rock pool swim, coastal walk, explore the pools (~2 hrs)</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ta">Activity</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d4" data-day="2" data-name="Rosebud Beach — morning swim">
+      <label for="d4">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Rosebud Beach — Morning Swim</span>
+          <span class="idesc">Easy walk from Airbnb, calm bay water swim</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ta">Activity</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="cat">🏸 Group Games</div>
+
+    <div class="item">
+      <input type="checkbox" id="d5" data-day="2" data-name="Backyard badminton at Airbnb">
+      <label for="d5">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Backyard Badminton</span>
+          <span class="idesc">Pack rackets or grab a cheap set from Kmart (~$20–30)</span>
+          <span class="tags"><span class="tag tg">Games</span><span class="tag tf">Free/cheap</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d6" data-day="2" data-name="Backyard cricket">
+      <label for="d6">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Backyard Cricket</span>
+          <span class="idesc">At the Airbnb or nearest oval — bring or buy a set</span>
+          <span class="tags"><span class="tag tg">Games</span><span class="tag tf">Free/cheap</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d7" data-day="2" data-name="Park games — frisbee, footy kick, touch">
+      <label for="d7">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Park Games — Frisbee / Footy / Touch</span>
+          <span class="idesc">Head to a nearby oval for a relaxed kick or throw</span>
+          <span class="tags"><span class="tag tg">Games</span><span class="tag tf">Free</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="cat">🏊 Pool &amp; Relaxation</div>
+
+    <div class="item">
+      <input type="checkbox" id="d8" data-day="2" data-name="Airbnb pool hang — swim &amp; chill together">
+      <label for="d8">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Airbnb Pool Hang</span>
+          <span class="idesc">Swim, float and chill together at the house</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ta">Activity</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d9" data-day="2" data-name="Peninsula Aquatic Centre — public pool (~$10pp)">
+      <label for="d9">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Peninsula Aquatic Centre — Public Pool</span>
+          <span class="idesc">Indoor/outdoor public pool in the area (~$8–12pp)</span>
+          <span class="tags"><span class="tag tp">~$10pp</span><span class="tag ta">Activity</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="cat">✝️ Easter Sunday</div>
+
+    <div class="item">
+      <input type="checkbox" id="d10" data-day="2" data-name="Easter Sunday church service — local Rosebud church">
+      <label for="d10">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Easter Sunday Church Service</span>
+          <span class="idesc">Local Rosebud or Peninsula church — morning service (~1 hr)</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ta">Experience</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="cat">🌅 Scenic Viewpoints</div>
+
+    <div class="item">
+      <input type="checkbox" id="d11" data-day="2" data-name="Arthurs Seat — panoramic Peninsula viewpoint">
+      <label for="d11">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Arthurs Seat — Panoramic Viewpoint</span>
+          <span class="idesc">Best 360° views — Bay &amp; Bass Strait in one shot</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d12" data-day="2" data-name="Sorrento clifftop walk — Back Beach viewpoint">
+      <label for="d12">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Sorrento Clifftop Walk — Back Beach</span>
+          <span class="idesc">Dramatic Bass Strait views from the clifftops</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d13" data-day="2" data-name="Cape Schanck — lighthouse viewpoint &amp; blowhole">
+      <label for="d13">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Cape Schanck — Lighthouse Viewpoint</span>
+          <span class="idesc">Rugged ocean views &amp; blowhole, southernmost tip of the Peninsula</span>
+          <span class="tags"><span class="tag tf">Free</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="cat">🍷 Food &amp; Experiences</div>
+
+    <div class="item">
+      <input type="checkbox" id="d14" data-day="2" data-name="Polperro Winery Red Hill — wine tastings (~$20pp, closed Mon &amp; Tue)">
+      <label for="d14">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Polperro Winery, Red Hill</span>
+          <span class="idesc">Wine tastings (~$15–20pp) — closed Mon &amp; Tue, confirm day!</span>
+          <span class="tags"><span class="tag tp">~$20pp</span><span class="tag ta">Experience</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d15" data-day="2" data-name="Baro Turkish Restaurant Rosebud — dinner for 7 (book ahead)">
+      <label for="d15">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Baro Turkish Restaurant — Dinner</span>
+          <span class="idesc">Book ahead for 7 people in Rosebud</span>
+          <span class="tags"><span class="tag td">Dinner</span><span class="tag tp">Paid</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d16" data-day="2" data-name="Sorrento main street — lunch &amp; explore">
+      <label for="d16">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Sorrento Main Street — Lunch &amp; Explore</span>
+          <span class="idesc">Charming village, great cafés and fish &amp; chips</span>
+          <span class="tags"><span class="tag td">Food</span><span class="tag ts">Scenic</span></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="item">
+      <input type="checkbox" id="d17" data-day="2" data-name="Peninsula Hot Springs — soak &amp; relax (~$60pp, book ahead)">
+      <label for="d17">
+        <span class="box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><polyline points="1.5,5 5,8.5 11.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="info">
+          <span class="iname">Peninsula Hot Springs</span>
+          <span class="idesc">Book ahead — natural thermal pools (~$50–70pp)</span>
+          <span class="tags"><span class="tag tp">~$60pp</span><span class="tag ta">Experience</span></span>
+        </span>
+      </label>
+    </div>
+  </div>
+
+</div>
+
+<!-- Sticky bar -->
+<div class="bar">
+  <div class="bar-left">
+    <div class="lbl">Selected</div>
+    <div class="cnt" id="cnt">0</div>
+  </div>
+  <button class="btn-copy" onclick="copyVotes()">📋 Copy My Votes</button>
+</div>
+
+<div class="toast" id="toast">✅ Copied! Paste into WhatsApp</div>
+
+<script>
+  // Update count whenever any checkbox changes
+  document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+    cb.addEventListener('change', updateCount);
+  });
+
+  function updateCount() {
+    var n = document.querySelectorAll('input[type="checkbox"]:checked').length;
+    document.getElementById('cnt').textContent = n;
+  }
+
+  function copyVotes() {
+    var name = document.getElementById('vname').value.trim() || 'Someone';
+    var checked = document.querySelectorAll('input[type="checkbox"]:checked');
+
+    if (checked.length === 0) {
+      alert('Tick at least one activity first! 😊');
+      return;
+    }
+
+    var day1 = [], day2 = [];
+    checked.forEach(function(cb) {
+      var d = cb.getAttribute('data-day');
+      var n = cb.getAttribute('data-name');
+      if (d === '1') day1.push('  \u2705 ' + n);
+      else day2.push('  \u2705 ' + n);
+    });
+
+    var msg = '\uD83C\uDF0A *Rosebud Getaway \u2014 ' + name + "'s Picks*\n\n";
+    if (day1.length) msg += '*\uD83D\uDCC5 Day 1 \u2014 Drive Down:*\n' + day1.join('\n') + '\n\n';
+    if (day2.length) msg += '*\uD83D\uDCC5 Day 2 \u2014 Full Day:*\n' + day2.join('\n') + '\n';
+    msg += '\n(' + checked.length + ' activit' + (checked.length === 1 ? 'y' : 'ies') + ' selected)';
+
+    // Copy to clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(showToast).catch(function() { fallback(msg); });
+    } else {
+      fallback(msg);
+    }
+  }
+
+  function fallback(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.top = '0'; ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); showToast(); } catch(e) { alert(text); }
+    document.body.removeChild(ta);
+  }
+
+  function showToast() {
+    var t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2500);
+  }
+</script>
+</body>
+</html>
